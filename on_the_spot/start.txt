@@ -1,0 +1,5 @@
+On The Spot is a game about tokenism that illustrates the frustration of trying to get things done as a person from a minority, while being encumbered by more or less "well meaning" members of the majority group. 
+
+Gameplay is as simple as it gets: Move the orange square with the arrow keys. Collect all the green squares (objectives) while trying to avoid the blue dots - if you bump into them and interact with them, your stress level goes up. If your stress level goes to 100, you explode from frustration. 
+
+Click to start the game.
