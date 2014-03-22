@@ -1,11 +1,26 @@
 int percentage = 8;
+int maxPlayerStress = 100;
 
-class Person {
+int sidebarX = 800;
+
+class Shape {
+  float xpos;
+  float ypos;
+  float size;
+  
+  Shape(float x, float y, float s)
+  {
+    xpos = x; 
+    ypos = y;
+    size = s;
+  }
+}
+
+
+class Person extends Shape {
   
  // this is a really bad model but no cathedrals
  boolean isMinority;
- float xpos;
- float ypos;
  
  // maybe factor stress level in somewhere?
  float speed;
@@ -13,30 +28,55 @@ class Person {
  // between 0 and 100
  float stress;
  
- float size;
- 
  color c;
+ // is this the player object?
+ boolean isPlayer;
  
- Person()
+ int points; 
+ 
+ Person(boolean isPlayer_)
  {
-   xpos = random(width - 250);
-   ypos = random(height - 20);
-  
-   isMinority = (random(100) < percentage); 
-   c = (isMinority) ? color(231, 153, 74) : color(74, 152, 231);
-   
-   speed = random(5);
+   super(random(sidebarX - 30), random(height - 20), 30);
+   boolean isMinority_ = (random(100) < percentage); 
+   _init(isMinority_, isPlayer_);
+ }
+ 
+ Person(boolean isMinority_, boolean isPlayer_)
+ {
+   super(random(sidebarX - 30), random(height - 20), 30);
+   _init(isMinority_, isPlayer_);
+ }
+ 
+ private void _init(boolean isMinority_, boolean isPlayer_)
+ {
+   c = (isMinority_) ? color(231, 153, 74) : color(74, 152, 231);
+   speed = random(6);
    
    stress = (isMinority) ? random(100) : random(50);
    
-   size = 10 + 0.23 * (stress);
+   isPlayer = isPlayer_;
+   points = 0; 
  }
+ 
   
  void display()
  {
+   display(xpos, ypos);
+ }
+ 
+ void display(float x, float y)
+ {
    fill(c);
    stroke(0);
-   ellipse(xpos, ypos, size, size);
+   size = 10 + 0.23 * (stress);
+   if(!isPlayer)
+   {
+     ellipse(x, y, size, size);
+   }
+   else
+   {
+     rect(x, y, size, size);
+   }
  }
  
  void move()
@@ -48,15 +88,56 @@ class Person {
    ypos = (ypos < (height - 20)) ? ypos : 0;
  }
  
+ void move(float x, float y)
+ {
+   // todo: check boundaries & such
+   xpos += x;
+   ypos += y;
+ }
+ 
+ void alterStress(float delta)
+ {
+   stress = ((stress + delta) >= 0.0) ? stress + delta : 0.0; 
+ }
+ 
+ void explode()
+ {
+ 
+ }
+ 
 }
 
+class Objective extends Shape
+{
+  color c;
+  
+  Objective()
+  {
+    super(random(sidebarX - 30), random(width - 30), random(24));
+    
+    c = color(24, 214, 71);
+  }
+  
+  void display()
+  {
+    fill(c);
+    stroke(208); 
+    rect(xpos, ypos, size, size);
+  }
+}
+
+
 ArrayList<Person> people; 
+Person player;
+ArrayList<Objective> things;
 
 void setup() {
   size(1000, 600);
-  line(800, 0, 800, 600);
   people = new ArrayList<Person>();
+  things = new ArrayList<Objective>();
   populateWorld(percentage);
+  
+  player = new Person(true, true);
 }
 
 // populates world
@@ -65,24 +146,176 @@ void populateWorld(int percentage)
 {
   for(int i = 0; i < 150; i++) 
   {
-    people.add(new Person());
+    people.add(new Person(false));
   }
+  
+  int amount = int(random(1, 70));
+  for(int i = 0; i < amount; i++)
+  {
+    things.add(new Objective());
+  }
+  
 }
 
 void draw() {
   
-  background(128);
+  background(48);
+  stroke(208);
+  line(sidebarX, 0, sidebarX, height);
   for(int i = 0; i < people.size(); i++)
   {
     Person p = people.get(i);
    
-    p.display();
     p.move();
+    p.display();
   }
-  fill(0);
+  
+  for(int i = 0; i < things.size(); i++)
+  {
+    things.get(i).display();
+  }
+  
+  player.display();
+  
+  stroke(208);
   textSize(16);
-  text(people.size(), 830, 20);
+  text("Points: " + player.points, sidebarX + 10, 30);
+  text("Stress level: " + int(player.stress), sidebarX + 10, 30 + 32 + 10);
 }
 
+boolean collide(Shape p1, Shape p2)
+{
+  return checkCollision(p1, p2) || checkCollision(p2, p1);
+}
+
+boolean checkCollision(Shape p1, Shape p2)
+{
+  float halfSize1 = p1.size / 2.0;
+  float halfSize2 = p2.size / 2.0;
+  
+  return ((p1.xpos - halfSize1) < (p2.xpos - halfSize2)) 
+      && ((p1.xpos + halfSize1) > (p2.xpos - halfSize2))
+      && ((p1.ypos - halfSize1) < (p2.ypos - halfSize2))
+      && ((p1.ypos + halfSize1) > (p2.ypos - halfSize2));
+}
+
+// check collision of player with people
+boolean checkPeopleCollision()
+{
+  boolean isColliding = false; 
+  // really primitive collision checking here, so sue me
+  
+  for(int i = 0; i < people.size(); i++)
+  {
+    Person p = people.get(i);
+    if(collide(player, p))
+    {
+      isColliding = true;
+      float stressDelta = (p.isMinority) ? -0.1 : 1.0;
+      player.alterStress(stressDelta);
+    }
+  }
+  
+  return isColliding;
+  
+}
+
+void checkObjectiveCollisions()
+{
+  // have I found an objective?
+  for(int i = things.size() - 1; i >= 0; i--)
+  {
+    Objective o = things.get(i);
+    if(collide(player, o))
+    {
+      player.alterStress(-0.5 * o.size);
+      
+      player.points += o.size;
+      things.remove(o);
+    }
+  } 
+}
+
+boolean checkWin()
+{
+  return (things.size() == 0) && (player.stress < maxPlayerStress);
+}
+
+boolean checkLoss()
+{
+  return (player.stress >= maxPlayerStress);
+}
+
+void displayWin()
+{
+  textSize(64);
+  textAlign(CENTER);
+  stroke(color(24, 214, 71));
+  text("You win", width/2, height/2);
+  noLoop();
+}
+
+
+void displayLoss()
+{
+  textSize(64);
+  textAlign(CENTER);
+  stroke(color(213, 74, 231));
+  text("Game over", width/2, height/2);
+  noLoop();
+}
+void keyPressed()
+{
+  float deltaX = 0.0;
+  float deltaY = 0.0;
+  if(key == CODED)
+  {
+    switch(keyCode)
+    {
+      case UP:
+        deltaX = 0.0;
+        deltaY = -1.0;
+        break;
+      case DOWN:
+        deltaX = 0.0;
+        deltaY = 1.0;
+        break;
+      case LEFT:
+        deltaX = -1.0;
+        deltaY = 0.0;
+        break;
+      case RIGHT: 
+        deltaX = 1.0;
+        deltaY = 0.0;
+        break;
+      default:
+        break;
+    }
+  }
+  
+  player.move (deltaX * player.speed, deltaY * player.speed);
+ 
+  boolean isColliding = checkPeopleCollision();
+  if(isColliding)
+  {
+    player.move(-1.0 * deltaX * player.speed, -1.0 * deltaY * player.speed);
+  }
+  checkObjectiveCollisions();
+  
+  player.display();
+  
+  if(checkWin()) 
+  {
+    displayWin();
+  }
+  else
+  {
+    if(checkLoss())
+    {
+      player.explode();
+      displayLoss();
+    }
+  }
+}
 
 
