@@ -188,7 +188,6 @@ String[] quotes;
 
 void setup() {
   size(1000, 600);
-  noLoop();
   
   displayStartScreen();
   people = new ArrayList<Person>();
@@ -198,6 +197,7 @@ void setup() {
   
   player = new Person(true, true);
   
+  noLoop();
 }
 
 void displayStartScreen()
@@ -208,21 +208,12 @@ void displayStartScreen()
   stroke(48);
   fill(48);
   
-  ArrayList<String> textList = new ArrayList<String>();
-  String[] text = loadStrings("start.txt");
-  for(int i = 0; i < text.length; i++)
-  {
-    ArrayList<String> t = wordWrap(text[i], width - 50);
-    for(int k = 0; k < t.size(); k++)
-    {
-      textList.add(t.get(k));
-    }
-  }
+  String[] textArray = loadStrings("start.txt");
   
-  for(int i = 0; i < textList.size(); i++)
+  for(int i = 0; i < textArray.length; i++)
   {
     float y = (i * 20) + height/3;
-    text(textList.get(i), 20, y);
+    text(textArray[i], 20, y);
   }
   // user clicks to start the game
 
