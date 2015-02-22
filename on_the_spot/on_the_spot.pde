@@ -5,48 +5,6 @@ int sidebarX = 800;
 boolean canStart = false;
 int currentQuoteIndex = 0; 
 
-/**
-wordwrap taken from http://wiki.processing.org/index.php?title=Word_wrap_text
-@author Daniel Shiffman
-*/
- 
-// Function to return an ArrayList of Strings (maybe redo to just make simple array?)
-// Arguments: String to be wrapped, maximum width in pixels of each line
-ArrayList wordWrap(String s, int maxWidth) {
-  // Make an empty ArrayList
-  ArrayList a = new ArrayList();
-  float w = 0;    // Accumulate width of chars
-  int i = 0;      // Count through chars
-  int rememberSpace = 0; // Remember where the last space was
-  // As long as we are not at the end of the String
-  while (i < s.length()) {
-    // Current char
-    char c = s.charAt(i);
-    w += textWidth(c); // accumulate width
-    if (c == ' ') rememberSpace = i; // Are we a blank space?
-    if (w > maxWidth) {  // Have we reached the end of a line?
-      String sub = s.substring(0,rememberSpace); // Make a substring
-      // Chop off space at beginning
-      if (sub.length() > 0 && sub.charAt(0) == ' ') sub = sub.substring(1,sub.length());
-      // Add substring to the list
-      a.add(sub);
-      // Reset everything
-      s = s.substring(rememberSpace,s.length());
-      i = 0;
-      w = 0;
-    } 
-    else {
-      i++;  // Keep going!
-    }
-  }
- 
-  // Take care of the last remaining line
-  if (s.length() > 0 && s.charAt(0) == ' ') s = s.substring(1,s.length());
-  a.add(s);
- 
-  return a;
-}
-
 class Shape {
   float xpos;
   float ypos;
@@ -189,7 +147,6 @@ String[] quotes;
 void setup() {
   size(1000, 600);
   
-  displayStartScreen();
   people = new ArrayList<Person>();
   things = new ArrayList<Objective>();
   populateWorld(percentage);
@@ -197,7 +154,7 @@ void setup() {
   
   player = new Person(true, true);
   
-  noLoop();
+  //noLoop();
 }
 
 void displayStartScreen()
@@ -246,7 +203,7 @@ void populateWorld(int percentage)
 
 void draw() {
   if(canStart)
-  {
+   {
     background(48);
     stroke(208);
     line(sidebarX, 0, sidebarX, height);
@@ -263,7 +220,7 @@ void draw() {
       things.get(i).display();
     }
     
-    player.display();
+     player.display();
     
     displayQuote(height/2);
     stroke(208);
@@ -274,6 +231,10 @@ void draw() {
     line(sidebarX, 96, width, 96);
     
   }
+  else 
+  {
+    displayStartScreen()
+  }
 }
 
 
@@ -282,11 +243,8 @@ void displayQuote(int ypos)
   textAlign(LEFT);
   stroke(208);
   textSize(14);
-  ArrayList<String> wrapped = wordWrap(quotes[currentQuoteIndex], (width - sidebarX - 30));
-  for(int i = 0; i < wrapped.size(); i++)
-  {
-    text(wrapped.get(i), sidebarX + 10, ypos + (18.0 * i));
-  }
+  text(quotes[currentQuoteIndex], sidebarX + 10, ypos, width - sidebarX - 30, height-30);
+
 }
 
 boolean collide(Shape p1, Shape p2)
@@ -429,6 +387,7 @@ void keyPressed()
 
 void mousePressed()
 {
-  loop();
-  canStart = true;
+   canStart = true;
+  // loop();
+
 }
