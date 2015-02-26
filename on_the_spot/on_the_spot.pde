@@ -2,7 +2,7 @@ int percentage = 8;
 int maxPlayerStress = 100;
 
 int sidebarX = 800;
-boolean canStart = false;
+boolean gameRunning = false;
 int currentQuoteIndex = 0; 
 
 class Shape {
@@ -202,7 +202,7 @@ void populateWorld(int percentage)
 }
 
 void draw() {
-  if(canStart)
+  if(gameRunning)
    {
     background(48);
     stroke(208);
@@ -233,7 +233,7 @@ void draw() {
   }
   else 
   {
-    displayStartScreen()
+    displayStartScreen();
   }
 }
 
@@ -328,6 +328,38 @@ void displayLoss()
   text("Game over", width/2, height/2);
   noLoop();
 }
+
+void moveGame(float deltaX, float deltaY)
+{
+
+  player.move (deltaX * player.speed, deltaY * player.speed);
+ 
+  boolean isColliding = checkPeopleCollision();
+  if(isColliding)
+  {
+    player.move(-1.0 * deltaX * player.speed, -1.0 * deltaY * player.speed);
+    
+    // new quote from annoying blue person
+    currentQuoteIndex =  int(random(quotes.length));
+  }
+  checkObjectiveCollisions();
+  
+  player.display();
+  
+  if(checkWin()) 
+  {
+    displayWin();
+  }
+  else
+  {
+    if(checkLoss())
+    {
+      player.explode();
+      displayLoss();
+    }
+  }  
+}
+
 void keyPressed()
 {
   float deltaX = 0.0;
@@ -356,38 +388,17 @@ void keyPressed()
         break;
     }
   }
-  
-  player.move (deltaX * player.speed, deltaY * player.speed);
- 
-  boolean isColliding = checkPeopleCollision();
-  if(isColliding)
-  {
-    player.move(-1.0 * deltaX * player.speed, -1.0 * deltaY * player.speed);
-    
-    // new quote from annoying blue person
-    currentQuoteIndex =  int(random(quotes.length));
-  }
-  checkObjectiveCollisions();
-  
-  player.display();
-  
-  if(checkWin()) 
-  {
-    displayWin();
-  }
-  else
-  {
-    if(checkLoss())
-    {
-      player.explode();
-      displayLoss();
-    }
-  }
+  moveGame(deltaX, deltaY);
 }
 
 void mousePressed()
 {
-   canStart = true;
+  gameRunning = true;
   // loop();
 
+}
+
+void mouseDragged()
+{
+  moveGame(mouseX - pmouseX, mouseY - pmouseY); 
 }
