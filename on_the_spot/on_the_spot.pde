@@ -147,7 +147,13 @@ class Person extends Shape {
 
   private void _init(boolean isMinority_, boolean isPlayer_)
   {
-    c = (isMinority_) ? color(231, 153, 74) : color(74, 152, 231);
+    isMinority = isMinority_;
+    if(isMinority_) {
+      c = (isPlayer_) ? color(250, 126, 5) : color(231, 153, 74);
+    }
+    else {
+      c = color(74, 152, 231);
+    }
     velocity = PVector.random2D();
     velocity.normalize();
     stress = (isMinority) ? random(100) : random(50);
