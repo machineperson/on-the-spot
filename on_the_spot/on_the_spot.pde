@@ -81,7 +81,6 @@ class Explosion
     system = new ParticleSystem(startPoint);
     for (int i = 0; i < n; i++)
     {
-      // todo this is primitive and should be cleaned up
       PVector velocity = PVector.random2D();
       velocity.normalize();
       system.addParticle(new Particle(startPoint, velocity, colour));
@@ -116,6 +115,7 @@ class Person extends Shape {
   boolean isMinority;
 
   // maybe factor stress level in somewhere?
+  PVector velocity;
   float speed;
 
   // between 0 and 100
@@ -148,9 +148,10 @@ class Person extends Shape {
   private void _init(boolean isMinority_, boolean isPlayer_)
   {
     c = (isMinority_) ? color(231, 153, 74) : color(74, 152, 231);
-    speed = random(4);
-
+    velocity = PVector.random2D();
+    velocity.normalize();
     stress = (isMinority) ? random(100) : random(50);
+    speed = (isMinority) ? random(50) : random(100);
     isExploding = false;    
     isPlayer = isPlayer_;
     points = 0; 
@@ -191,11 +192,19 @@ class Person extends Shape {
 
   void move()
   {
-    xpos += random(-1 * speed, speed);
-    ypos += random(-1 * speed, speed);
-
-    xpos = (xpos < (width - 250)) ? xpos : 0;
-    ypos = (ypos < (height - 20)) ? ypos : 0;
+    if(!isPlayer) {
+      PVector location = new PVector(xpos, ypos);
+      location = PVector.add(velocity, location);
+      if(location.x > (sidebarX - size) || location.x < 0) {
+        velocity.x *= -1.0;
+      }
+      if(location.y > (height - size) || location.y < 0) {
+        velocity.y *= -1.0;
+      }
+      xpos = location.x;
+      ypos = location.y;
+    }
+    
   }
 
   void move(float x, float y)
@@ -317,8 +326,8 @@ boolean checkCollision(Shape p1, Shape p2)
 
   return ((p1.xpos - halfSize1) < (p2.xpos - halfSize2)) 
     && ((p1.xpos + halfSize1) > (p2.xpos - halfSize2))
-      && ((p1.ypos - halfSize1) < (p2.ypos - halfSize2))
-        && ((p1.ypos + halfSize1) > (p2.ypos - halfSize2));
+    && ((p1.ypos - halfSize1) < (p2.ypos - halfSize2))
+    && ((p1.ypos + halfSize1) > (p2.ypos - halfSize2));
 }
 
 // check collision of player with people
