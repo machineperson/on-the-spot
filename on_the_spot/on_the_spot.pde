@@ -16,7 +16,7 @@ class ParticleSystem
     origin = origin_;
     particles = new ArrayList<Particle>();
   }
-
+  
   void addParticle(Particle p)
   {
     particles.add(p);
@@ -241,7 +241,7 @@ class Objective extends Shape
 
   Objective()
   {
-    super(random(24, sidebarX - 30), random(24, height - 30), random(24));
+    super(random(24, sidebarX - 30), random(24, height - 30), random(2, 24));
 
     c = color(24, 214, 71);
   }
