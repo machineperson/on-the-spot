@@ -154,6 +154,10 @@ class Person extends Shape {
     else {
       c = color(74, 152, 231);
     }
+    if(isPlayer_) {
+      xpos = (sidebarX / 2) - 15;
+      ypos = (height / 2) - 15;
+    }
     velocity = PVector.random2D();
     velocity.normalize();
     stress = (isMinority) ? random(100) : random(50);
