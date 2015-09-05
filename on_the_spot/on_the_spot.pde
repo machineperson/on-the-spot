@@ -259,6 +259,7 @@ ArrayList<Person> people;
 Person player;
 ArrayList<Objective> things;
 String[] quotes;
+String currentQuote;
 
 void setup() {
   size(1000, 600);
@@ -414,9 +415,11 @@ void moveGame(float deltaX, float deltaY)
   if (isColliding)
   {
     player.move(-1.0 * deltaX * player.speed, -1.0 * deltaY * player.speed);
-
-    // new quote from annoying blue person
-    currentQuoteIndex =  int(random(quotes.length));
+    
+    if(int(random(6)) == 0) {
+      // new quote from annoying blue person
+      currentQuoteIndex =  int(random(quotes.length));
+    }
   }
   checkObjectiveCollisions();
 
